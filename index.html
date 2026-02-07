@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Just One Question 💖</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#ffd6e0,#ff9a9e);
+  font-family:'Segoe UI',sans-serif;
+  overflow:hidden;
+}
+
+.card{
+  background:#fff;
+  padding:30px 25px;
+  border-radius:22px;
+  text-align:center;
+  box-shadow:0 15px 30px rgba(0,0,0,.2);
+  max-width:320px;
+  z-index:2;
+}
+
+h2{margin-bottom:20px}
+
+button{
+  padding:14px 28px;
+  font-size:16px;
+  border:none;
+  border-radius:25px;
+  cursor:pointer;
+  transition:transform .25s ease;
+}
+
+#yesBtn{
+  background:#e91e63;
+  color:#fff;
+}
+
+#noBtn{
+  background:#ddd;
+  position:absolute;
+}
+
+.popup{
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  background:#fff;
+  padding:25px;
+  border-radius:20px;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,.3);
+  z-index:10;
+  transition:.4s ease;
+}
+
+.popup.show{
+  transform:translate(-50%,-50%) scale(1);
+}
+
+#blackScreen{
+  position:fixed;
+  inset:0;
+  background:black;
+  opacity:0;
+  transition:.5s ease;
+  z-index:5;
+  pointer-events:none;
+}
+#blackScreen.show{opacity:1}
+
+#fireworks{
+  position:fixed;
+  inset:0;
+  display:none;
+  z-index:6;
+}
+
+.fall{
+  position:fixed;
+  top:-20px;
+  animation:fall linear forwards;
+  pointer-events:none;
+}
+
+@keyframes fall{
+  to{
+    transform:translateY(110vh) rotate(360deg);
+    opacity:0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2> Dear Kajal, will you be my rose partner....🥺🥺🥺💕</h2>
+  <button id="yesBtn">Yes 😍</button>
+  <button id="noBtn">No 🙈</button>
+</div>
+
+<div class="popup" id="popup1">
+  <h3>🎉 Thanks! 🥰❤️</h3>
+  <p>You made my heart smile, this is the sweetest way to say yes.💖</p>
+</div>
+
+<div class="popup" id="popup2">
+  <h3>just one more thing if you approved😍</h3>
+  <p>Can we go on a date.....Votka date🌹❤️</p>
+
+  <div id="dateSection" style="display:none;margin-top:15px">
+    <input type="date" id="datePick">
+    <br><br>
+    <button onclick="confirmDate()">Confirm Date 💖</button>
+  </div>
+</div>
+
+<div id="blackScreen"></div>
+<canvas id="fireworks"></canvas>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const popup1 = document.getElementById("popup1");
+const popup2 = document.getElementById("popup2");
+const dateSection = document.getElementById("dateSection");
+
+let scale = 1;
+let textIndex = 0;
+
+const noTexts = [
+ "Nopp 😒","Are you sure 😳","Think again 😏",
+ "Really 🥺","Dil tod diya 💔",
+ "Last chance 😬","Stoppp 😅","Just YES 😍"
+];
+
+function runAway(){
+  noBtn.innerText = noTexts[textIndex++ % noTexts.length];
+  noBtn.style.left = Math.random()*(innerWidth-120)+"px";
+  noBtn.style.top  = Math.random()*(innerHeight-60)+"px";
+  scale += 0.3; // ⬅ bigger YES growth
+  yesBtn.style.transform = `scale(${scale})`;
+}
+
+noBtn.addEventListener("mouseover", runAway);
+noBtn.addEventListener("click", runAway);
+noBtn.addEventListener("touchstart", runAway);
+
+/* Fireworks */
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+let particles=[], interval;
+
+function fire(){
+  const x=Math.random()*canvas.width;
+  const y=Math.random()*canvas.height/2;
+  for(let i=0;i<40;i++){
+    particles.push({
+      x,y,
+      dx:(Math.random()-0.5)*6,
+      dy:(Math.random()-0.5)*6,
+      a:1,
+      c:`hsl(${Math.random()*360},100%,60%)`
+    });
+  }
+}
+
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach((p,i)=>{
+    p.x+=p.dx; p.y+=p.dy; p.a-=0.02;
+    ctx.globalAlpha=p.a;
+    ctx.fillStyle=p.c;
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,3,0,Math.PI*2);
+    ctx.fill();
+    if(p.a<=0) particles.splice(i,1);
+  });
+  ctx.globalAlpha=1;
+  requestAnimationFrame(animate);
+}
+
+/* Rain */
+function rain(){
+  for(let i=0;i<60;i++){
+    const e=document.createElement("div");
+    e.className="fall";
+    e.innerHTML=Math.random()>.5?"❤️":"🌹";
+    e.style.left=Math.random()*100+"vw";
+    e.style.fontSize=(18+Math.random()*20)+"px";
+    e.style.animationDuration=(3+Math.random()*3)+"s";
+    document.body.appendChild(e);
+    setTimeout(()=>e.remove(),6000);
+  }
+}
+
+yesBtn.onclick=()=>{
+  const black=document.getElementById("blackScreen");
+  black.classList.add("show");
+
+  setTimeout(()=>{
+    canvas.style.display="block";
+    interval=setInterval(fire,350);
+    animate();
+  },400);
+
+  setTimeout(()=>{
+    clearInterval(interval);
+    canvas.style.display="none";
+    black.classList.remove("show");
+  },2800);
+
+  setTimeout(()=>{
+    popup1.classList.add("show");
+    rain();
+  },3200);
+
+  /* 🔥 SECOND POPUP – EARLIER */
+  setTimeout(()=>{
+    popup2.classList.add("show");
+    setTimeout(()=>{
+      dateSection.style.display="block";
+    },4000);
+  },5000); // ⬅ EARLIER TIMING
+};
+
+function confirmDate(){
+  const d=document.getElementById("datePick").value;
+  if(!d){alert("Please select a date 😊");return;}
+  window.open(
+    `https://wa.me/918802329692?text=Date%20confirmed%20🥰❤️%0AOur%20date%20is:%20${d}`,
+    "_blank"
+  );
+}
+</script>
+
+</body>
+</html>
